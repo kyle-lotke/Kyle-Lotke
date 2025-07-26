@@ -1,0 +1,21 @@
+ame: agentic-hackathon
+channels:
+  - defaults
+  - conda-forge
+dependencies:
+  - python=3.10
+  - pip
+  - numpy
+  - pandas
+  - gurobi
+  - pip:
+      - google-generativeai
+      - fastapi
+      - uvicorn
+      - ngrok
+      - pydantic
+      - requests
+      - google-auth
+      - google-api-python-client
+      - google-auth-httplib2
+      - google-auth-oauthlib

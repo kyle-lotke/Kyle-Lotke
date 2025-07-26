@@ -1,0 +1,1502 @@
+{
+  "name": "Gorilla Hike Matcher",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "simple": false,
+        "filters": {
+          "labelIds": []
+        },
+        "options": {
+          "downloadAttachments": true
+        }
+      },
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -528,
+        16
+      ],
+      "id": "55c41c3e-3597-40f9-bb88-d71d19747115",
+      "name": "Gmail Trigger",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "Lu7URvsIwYjeEeNI",
+          "name": "Gorilla Email"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \t\"Hikes\": [\n      {\n        \"gorilla_family\": \"Titus\",\n        \"difficulty\": 1,\n        \"description_binary\": {\"rocky\": 1, \"wet\": 0, \"steep\": 1},\n        \"elevation\": 2490,\n        \"estimated_time_minutes\": 120,\n        \"estimated_distance_km\": 0,\n        \"country\": \"Rwanda\",\n        \"research\": false\n      },\n      {\n        \"gorilla_family\": \"Susa\",\n        \"difficulty\": 3,\n        \"description\": {\"rocky\": 0, \"wet\": 1, \"steep\": 0},\n        \"elevation\": 1235,\n        \"estimated_time_minutes\": 340,\n        \"estimated_distance_km\": 12,\n        \"country\": \"Rwanda\",\n        \"research\": true\n      }\n    ]\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        848,
+        208
+      ],
+      "id": "9a52dc6d-84f6-4ca2-9245-e353817b8e04",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        448,
+        400
+      ],
+      "id": "1e6e8dd2-3194-4e82-9038-364897bee0d2",
+      "name": "No Operation, do nothing"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        560,
+        192
+      ],
+      "id": "a45d0143-e8af-4a90-93fc-44d0b6d2f669",
+      "name": "Hike Info Parser",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "Ns0ztVG2nbx9v6Mf",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "8981f6ba-89ae-4608-a79f-77360d887223",
+              "name": "Gorilla Family Universe",
+              "value": "=[\"Muhoza\",\n\"Hirwa\",\n\"Kwitonda\",\n\"Kwisanga\",\n\"Amahoro\",\n\"Sabyinyo\",\n\"Igisha\",\n\"Umubano\",\n\"Agashya\",\n\"Susa\",\n\"Kigoma\",\n\"Kureba\",\n\"Titus\",\n\"Pablo\",\n\"Dushishoze\",\n\"Musirikare\",\n\"Urwego\",\n\"Ntambara\",\n\"Isimbi\",\n\"Segasira\",\n\"Mutobo\",\n\"Muhabura\", \n\"Izuba\"\n\n]",
+              "type": "array"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        480,
+        -160
+      ],
+      "id": "23e41389-771d-4267-95b9-76eb95c3edbe",
+      "name": "Global Vars"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "9028d02a-78be-43fe-93b4-f2fc27e84cba",
+              "leftValue": "=\n{{ $json.content.parts[0].text }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        304,
+        16
+      ],
+      "id": "f7261cac-6931-4501-9b10-d08f6504bbb5",
+      "name": "If request"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "5820cd2c-6cb8-4f8b-9338-a7533fb0fd0b",
+              "name": "Email Context",
+              "value": "=email subject:\n{{ $json.headers.subject }}\n\nemail body:\n{{ $json.text }}\n\n\n",
+              "type": "string"
+            },
+            {
+              "id": "753bc6bb-34d0-4c55-a068-ef787e93c9ce",
+              "name": "sender's address",
+              "value": "={{ $json.from.value[0].address }}",
+              "type": "string"
+            },
+            {
+              "id": "22377837-88cb-4cee-9ef3-835e27672f08",
+              "name": "date",
+              "value": "7/24/2025",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -272,
+        -112
+      ],
+      "id": "1ace349c-993d-478d-a440-da474eb6b8eb",
+      "name": "Raw Email Data"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-1.5-pro",
+          "mode": "list",
+          "cachedResultName": "models/gemini-1.5-pro"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=Your role is to decide if the incoming email is asking for gorilla group assignments. Take in the entire email subject and body and deduce if it is asking to solve matchings. If it is asking for matching there should be accompanying gorilla family reports from the trackers.\n\nYour output must be a boolean. True if the email is a request. False if not.\n\nBelow is the subject followed by the body of the email:\n\n{{ $json.Subject }}\n\n{{ $json.Body }}"
+            }
+          ]
+        },
+        "jsonOutput": "={{ true }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1,
+      "position": [
+        -48,
+        -192
+      ],
+      "id": "96f96e1a-112b-4db8-9e2f-26f4624e7242",
+      "name": "Email Filter",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "Ns0ztVG2nbx9v6Mf",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Input: { output: { Hikes: [ ... ] } }\nconst hikes = $input.first().json.output.Hikes;\n\nconst filtered = hikes.filter(hike =>\n  hike.country === \"Rwanda\" && hike.research === false\n);\n\nreturn [{ json: { filteredHikes: filtered } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        976,
+        0
+      ],
+      "id": "a9fa301b-2536-4fa4-b014-8296434df57a",
+      "name": "Filter Check + Fill Missing"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        832,
+        432
+      ],
+      "id": "b35f420a-1f23-4cad-84f5-d37a38e45960",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "Ns0ztVG2nbx9v6Mf",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are a time and distance estimator agent designed to fill in either time, distacne, or both in order to complete json data for a specifc hike; we will specify which of these options later in the prompt.\n\nMake sure the output follows the output format. If there are input fields in the input json that don't exist in the expected output json, you can drop the information; essentially means follow the output schema. You will use the other input data to make estimations, but you won't include it in the output.\n\n\nYour hike specifc input data and specifc estimator task is:\n{{$json[\"prompt\"]}}\n\n\nEnsure no other fields are modified. Modify the JSON according to all the rules listed in the prompt and output structure. Do not change dtypes either; reference the output to find dtypes. You can assume a number without a '.' is an int.\n\nJust make the necesary changes to your assigned value, it is pretty simple. Focus on output structure. ",
+        "hasOutputParser": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.1,
+      "position": [
+        2256,
+        16
+      ],
+      "id": "f8880fe8-5da1-43e8-8083-e85ef6f261a4",
+      "name": "time/dist estimator"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are an information extraction agent. Your task is to read the input email and extract structured hike data in the specified JSON format.\n\nI want you to parse hike details per gorilla family found in the body of the email. Take the details and put them in their respective output places in the json. You must follow the listed output format. \n\nFor \"difficulty\" rating. Easy = 1, medium = 2, difficult = 3, extremely difficult = 4. Use your judgement to categorize the difficulty based on what the trackers say. If the trackers don't mention difficulty, record it as a 0 and I will calculate it later in the workflow. dtype of category should be int.\n\nFor \"description_binary\". The categories are rocky, wet, steep. Use your judgment to assign boolean values for each based of the context from the trackers for the specifc hike. If nothing mentioned assume the value is 0. Remember, the opposite of wet, are words like dry, loose gravel, etc. opposite of steep are words like flat, level, low elevation etc. Use your judgment to find opposite words to the categories and count it as 0 for that category.\n\nFor \"elevation\", find the number given by the tracker's context. You can put 0 if there is no context. I will go over all 0's later and fill them in so don't force it. dtype float. unit meters.\n\nFor \"est_dist_km\", find the hike distance given by the tracker's context, you may need to convert the units, make sure it gets recorded as kilometers. You can put 0 if there is no context. I will go over all 0's later and fill them in so don't force it. dtype float\n\nFor \"est_time_min\", find the hike time given by the tracker's context, you may need to convert the units, make sure it gets recorded as minutes. You can put 0 if there is no context. I will go over all 0's later and fill them in so don't don't force it. dtype int\n\n\nFor country string, and research boolean. completly ignore if research is true or country != \"rwanda\". These gorilla families must be filtered out and not including in the json output. I will have a function later in the workflow to check this, if you are unsure assume they are being reachered.\n\n\n\nTake your time, there is also a output checker to decrease the chances of hallucinations. Ensure there are no duplicvate entries. Use \"gorilla_family\" as a key to ensure no duplicates. get rid of the second identical entry if they exist.\n\nBecause the information is given by gorila trackers whose first language is not english, some of the words will be misspelled. The highest risk peice of information to get right is the gorilla name. I have injected all the possible gorilla names in a global var I will link below, not all of them will be selected but all selected names must be on the list. Use it as context when assigned names.\n\nBelow is the subject followed by the body of the email:\n{{ $('Raw Email Data').item.json['Email Context'] }}\n\nBelow is the list of all gorilla famillies:\n{{ $json['Gorilla Family Universe'] }}",
+        "hasOutputParser": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.1,
+      "position": [
+        624,
+        0
+      ],
+      "id": "af2996ca-be10-4aae-9625-f241da1355cf",
+      "name": "Extraction Agent"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        2224,
+        224
+      ],
+      "id": "b2b337bd-4bbc-4839-9940-f8473f12792e",
+      "name": "Google Gemini Chat Model1",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "Ns0ztVG2nbx9v6Mf",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \t\"Hikes\": [\n      {\n        \"gorilla_family\": \"Titus\",\n        \"difficulty\": 1,\n        \"description_binary\": {\"rocky\": 1, \"wet\": 0, \"steep\": 1},\n        \"elevation\": 2490,\n        \"estimated_time_minutes\": 120,\n        \"estimated_distance_km\": 5,\n        \"country\": \"Rwanda\",\n        \"research\": false\n      }\n    ]\n}",
+        "autoFix": true
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        2496,
+        256
+      ],
+      "id": "5f01d293-e4ee-4c39-835c-ec7406ab680a",
+      "name": "Structured Output Parser1"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        2448,
+        448
+      ],
+      "id": "64f56d84-0d8b-404c-b349-0afe328a933e",
+      "name": "Google Gemini Chat Model2",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "Ns0ztVG2nbx9v6Mf",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## I wish I could keep my agent node while being able to see both the pre and post autofixer output. This would help we judge the effectivness of the autofixer",
+        "height": 224,
+        "width": 368
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        4240,
+        1696
+      ],
+      "typeVersion": 1,
+      "id": "f40be843-9e57-4998-a2a2-7d81d83f49b6",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        3520,
+        272
+      ],
+      "id": "e698ab35-fd83-4605-8911-766e240c3476",
+      "name": "Google Gemini Chat Model3",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "Ns0ztVG2nbx9v6Mf",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        2880,
+        224
+      ],
+      "id": "098f2794-0979-4abd-8a37-a949c6144b0f",
+      "name": "Google Gemini Chat Model4",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "Ns0ztVG2nbx9v6Mf",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are a consistency agent responsible for reviewing and improving the estimated time and distance values provided by the previous agent for a json of gorilla hike data, which will be provided below.\n\nThe agent before already made a first pass using local (individual) hike context, which is usually a good baseline.\n\nYour job now is to:\n\nCompare all hikes to each other, using time, distance, and the binary features steep, wet, and rocky.\nCombine the given information with your own understanding of the world.\n\n\nDetect inconsistencies or logical contradictions. For example but not limited to:\n\nA hike marked as steep and rocky with greater distance should not have less time than a flat, dry, shorter hike.\n\nWet, steep, and long hikes should generally take longer than dry, flat, short ones.\n\nOnly modify values if they are clearly inconsistent with other hikes.\n\nAvoid arbitrary changes.\n\nHikes over 12 hours or distance 20 km are most likely hallucinations and should be lowered. Keep them high if applicable but make sure they are reasonable relative to data on other hikes.\n\nHikes under 2 hours or distance 2 km are most likely hallucinations and should be increased. Keep them low if applicable but make sure they are reasonable relative to data on other hikes.\n\nIf the first agent's estimate seems reasonable, leave it unchanged.\n\nThis is a second-draft pass. Think in terms of internal logic and reasonableness across the set — do not force normalization or ranking unless necessary.\n\n\nHere is the allHike json data use this for context:\n{{ $json.allHikes }}\n\n\n\nUse this JSON string according and all the rules listed in the prompt and output structure to create an output json with the edited time/dist estimation. Ensure no other fields are modified besides the estimated_time_minutes and estimated_distance_km. reference the output to find dtypes. You can assume a number without a '.' is an int.\n\n\n",
+        "hasOutputParser": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.1,
+      "position": [
+        2912,
+        16
+      ],
+      "id": "b1f5593e-2ecc-41f1-8d98-8cc9cdca038b",
+      "name": "Time/Dist Refiner"
+    },
+    {
+      "parameters": {
+        "numberInputs": 4
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        2000,
+        0
+      ],
+      "id": "c5be8008-ae89-4bc5-aef5-281af27fa9f7",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "jsCode": "const hikes = $json.filteredHikes;\n\nconst result = hikes.map(hike => {\n  const missingTime = hike.estimated_time_minutes === 0;\n  const missingDistance = hike.estimated_distance_km === 0;\n  const missingBoth = missingTime && missingDistance;\n\n  return {\n    json: {\n      ...hike,\n      missingTime,\n      missingDistance,\n      missingBoth\n    }\n  };\n});\n\nreturn result;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1184,
+        0
+      ],
+      "id": "150f473d-ce59-45cb-bb07-a99748431db3",
+      "name": "Set booleans for missing values"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.missingTime && !$json.missingDistance}}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "true",
+                      "singleValue": true
+                    },
+                    "id": "ad6ab0ae-ed03-4247-aa80-86ddbe515eea"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Need to estimate time"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "8a279a7f-376c-456f-9c61-fe22cacb2f45",
+                    "leftValue": "={{ $json.missingDistance && !$json.missingTime}}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "true",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Need to estimate distance"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "0d11c691-2b48-4a81-a58e-633201b480b9",
+                    "leftValue": "={{ $json.missingBoth }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "true",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Need to estimate both"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "7c8d6269-a81e-4f8c-88e1-cbff3ae28066",
+                    "leftValue": "={{ !$json.missingDistance && !$json.missingTime}}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "true",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Missing None"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        1408,
+        -16
+      ],
+      "id": "ddd103d6-89e9-4008-a0d8-cec1de768f44",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "jsCode": "const hikes = $input.all().map(item => {\n  const hike = item.json;\n  \n  // Construct a custom prompt for this hike\n  const prompt = `This hike is missing the time data, we must add it:\nGorilla Family: ${hike.gorilla_family}\nDifficulty: ${hike.difficulty}\nRocky: ${hike.description_binary.rocky}\nWet: ${hike.description_binary.wet}\nSteep: ${hike.description_binary.steep}\nElevation: ${hike.elevation}\nCountry: ${hike.country}\nResearch: ${hike.research}\nEstimated Time (add estimation in this key's value): ${hike.estimated_time_minutes}\nEstimated Distance: ${hike.estimated_distance_km}\n\nHere is some inspiration for how to estimate time:\n\n    Take your time and use your judgement and don't limit yourself to just ideas I provide:\n\n      steep + dry + longer est dist → longer time\n      \n      no rocks, low steepness, low est dist → shorter time\n      \n      wet + long dist → longer time`;\n\n  return {\n    json: {\n      ...hike,\n      prompt\n    }\n  };\n});\n\nreturn hikes;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1712,
+        -240
+      ],
+      "id": "ae8c65ec-6285-4541-af47-69f7195f7deb",
+      "name": "missing time prompt"
+    },
+    {
+      "parameters": {
+        "jsCode": "const hikes = $input.all().map(item => {\n  const hike = item.json;\n  \n  // Construct a custom prompt for this hike\n  const prompt = `This hike is missing the distance data, we must add it:\nGorilla Family: ${hike.gorilla_family}\nDifficulty: ${hike.difficulty}\nRocky: ${hike.description_binary.rocky}\nWet: ${hike.description_binary.wet}\nSteep: ${hike.description_binary.steep}\nElevation: ${hike.elevation}\nCountry: ${hike.country}\nResearch: ${hike.research}\nEstimated Time: ${hike.estimated_time_minutes}\nEstimated Distance (add estimation in this key's value): ${hike.estimated_distance_km}\n\nHere is some inspiration for how to estimate time:\n\n    Take your time and use your judgement and don't limit yourself to just ideas I provide:\n\n    Distance is a function of time.\n    Take the given time and use your knowledsge about the world paired with the given context of the specifc hike and make an estimation.\n    \n    Accuracy is important and this section has room for hallucinations so please take your time.`;\n\n  return {\n    json: {\n      ...hike,\n      prompt\n    }\n  };\n});\n\nreturn hikes;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1712,
+        -48
+      ],
+      "id": "6e2cd783-3243-42ca-a38d-5c97266fe9c9",
+      "name": "missing dist prompt"
+    },
+    {
+      "parameters": {
+        "jsCode": "const hikes = $input.all().map(item => {\n  const hike = item.json;\n  \n  // Construct a custom prompt for this hike\n  const prompt = `This hike is missing the both the time and distance data, we must add both:\nGorilla Family: ${hike.gorilla_family}\nDifficulty: ${hike.difficulty}\nRocky: ${hike.description_binary.rocky}\nWet: ${hike.description_binary.wet}\nSteep: ${hike.description_binary.steep}\nElevation: ${hike.elevation}\nCountry: ${hike.country}\nResearch: ${hike.research}\nEstimated Time (add estimation in this key's value): ${hike.estimated_time_minutes}\nEstimated Distance (add estimation in this key's value): ${hike.estimated_distance_km}\n\n\nHere is some inspiration for how to estimate both time and dist when both are unkown:\n\n    Take your time and use your judgement and don't limit yourself to just ideas I provide, use logic and what you know about the world:\n\n    \n      steep + wet → longer estimated time\n      \n      no rocks, no steepness → shorter estimated time\n      \n      wet + rocks → longer estimated time\n      \n          Once we have our time, estimating distance is easy, you can you use your judgment pairs with the context of each hike.\n      \n      `;\n\n\n  return {\n    json: {\n      ...hike,\n      prompt\n    }\n  };\n});\n\nreturn hikes;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1712,
+        144
+      ],
+      "id": "10d5a58a-3370-44d9-91a3-6bf65f4016e7",
+      "name": "missing both prompt"
+    },
+    {
+      "parameters": {
+        "jsCode": "const hikeArray = $input.all().map(item => item.json);\nconst hikeString = JSON.stringify(hikeArray, null, 2);\n\nreturn [\n  {\n    json: {\n      allHikes: hikeString\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2656,
+        16
+      ],
+      "id": "9560fed2-c27d-4456-ade4-c4e668d95f8c",
+      "name": "Combine_Hikes"
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \t\"Hikes\": [\n      {\n        \"gorilla_family\": \"Titus\",\n        \"difficulty\": 1,\n        \"description_binary\": {\"rocky\": 1, \"wet\": 0, \"steep\": 1},\n        \"elevation\": 2490,\n        \"estimated_time_minutes\": 120,\n        \"estimated_distance_km\": 5,\n        \"country\": \"Rwanda\",\n        \"research\": false\n      },\n      {\n        \"gorilla_family\": \"Susa\",\n        \"difficulty\": 0,\n        \"description_binary\": {\"rocky\": 0, \"wet\": 1, \"steep\": 0},\n        \"elevation\": 1235,\n        \"estimated_time_minutes\": 340,\n        \"estimated_distance_km\": 12,\n        \"country\": \"Rwanda\",\n        \"research\": true\n      }\n    ]\n}",
+        "autoFix": true
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        3152,
+        208
+      ],
+      "id": "d9880a40-6063-4390-b6ca-e5433163ce06",
+      "name": "Structured Output Parser2"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        3120,
+        368
+      ],
+      "id": "2fc92787-25a3-4720-a62d-b3b96e310613",
+      "name": "Google Gemini Chat Model5",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "Ns0ztVG2nbx9v6Mf",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \t\"Hikes\": [\n      {\n        \"gorilla_family\": \"Titus\",\n        \"difficulty\": 1,\n        \"description_binary\": {\"rocky\": 1, \"wet\": 0, \"steep\": 1},\n        \"elevation\": 2490,\n        \"estimated_time_minutes\": 120,\n        \"estimated_distance_km\": 5,\n        \"country\": \"Rwanda\",\n        \"research\": false\n      },\n      {\n        \"gorilla_family\": \"Susa\",\n        \"difficulty\": 3,\n        \"description_binary\": {\"rocky\": 0, \"wet\": 1, \"steep\": 0},\n        \"elevation\": 1235,\n        \"estimated_time_minutes\": 340,\n        \"estimated_distance_km\": 12,\n        \"country\": \"Rwanda\",\n        \"research\": true\n      }\n    ]\n}",
+        "autoFix": true
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        3744,
+        208
+      ],
+      "id": "5f67b186-e6b5-4855-ac73-e476eae58884",
+      "name": "Structured Output Parser3"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        3824,
+        368
+      ],
+      "id": "ca22e584-5051-4306-98d3-b740ebf461c2",
+      "name": "Google Gemini Chat Model6",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "Ns0ztVG2nbx9v6Mf",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are a hike difficulty estimation agent responsible for filling in missing difficulty scores. For reference: 1 = easy, 2 = medium, 3 = difficult, 4 = extremely difficult, and 0 = not set yet (a score of 0 is a signal that you will need to estimate and replace that score). Additionally, you will be provided a json object containing data on each hike called Hikes. You will be expected to pull information from hikes and combine it with your understanding of the world to build your hike difficulty estimations.\n\n\n\nHere is some inspiration for methods on predicting difficulty, you are not limited to what I suggest because I want to leverage your understanding of the world:\n\nCompare all hikes to each other, using time, distance, and the binary features steep, wet, and rocky.\nCombine the given information with your own understanding of the world.\n\nSome difficulty scores are already in place. It is safe to assume those scores are accurate and should not be changed. Therefore it is critical to understand which parameters led to those scores. Knowing that will help aid you in the estimation of scores marked 0.\n\nIMPORTANT INFO: The most important metric is estimated_time_minutes, estimated_distance_km, and then elevation in that order. For each of those categories, the higher the more difficult the hike ands the lower the easier thje hike. Focus on those when picking difficulty.\nMake sure you consider the important info above.\n\nDetect inconsistencies or logical contradictions. For example but not limited to:\n\nA hike marked as steep and rocky with greater distance should be more difficulty than a flat, dry, shorter hike.\n\nWet and steep hikes should be more difficult than dry, flat, short ones.\n\nOnly modify values if they are makred 0.\n\nAt this stage of the workflow, non-zero difficulties are have been entered manually by trackers and assumed correct. Therefore use them as pockets of truth to build your estimations around.\n\nDifficulty scores must be 1,2,3, or 4. If you are completly stumped mark it as a 0; this is a last resort.\n\n\nHere is the Hike json data use this for context:\n{{ $json.allHikes }}\n\n\n\nModify the JSON according to all the rules listed in the prompt and output structure. Ensure no other fields are modified besides the difficulty. Do not change dtypes either; reference the output to find dtypes. You can assume a number without a '.' is an int. Difficulty is an int.\n\nAccuracy is more important than speed on this section.\n",
+        "hasOutputParser": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.1,
+      "position": [
+        3584,
+        -48
+      ],
+      "id": "6cb95483-b91c-4e6a-8230-b724d847fcbb",
+      "name": "Difficulty Estimator"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "15YZgP7xWYdvGw3crn8ZVjSW1hmZGMmyz38B-Vj9hPwE",
+          "mode": "list",
+          "cachedResultName": "Test Hike Data",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/15YZgP7xWYdvGw3crn8ZVjSW1hmZGMmyz38B-Vj9hPwE/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/15YZgP7xWYdvGw3crn8ZVjSW1hmZGMmyz38B-Vj9hPwE/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        720,
+        1424
+      ],
+      "id": "38fe2edb-a7c0-4142-81a7-2865de70746f",
+      "name": "Pull Live Hike Requests",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "Et5Ch9bje3RVVyAi",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const hikes = $input.all().map(item => {\n  const hike = item.json;\n  \n  // Construct a custom prompt for this hike\n  const prompt = `This hike is missing nothing. You don't need to do anything. \n  Do not change estimate_time_min and do not change estimate_distance_kilometers. You get an easier job for these nodes because you don't need to estimate time or dist, just copy them over into the output json. Ensure you maintain every hike in the output don't lose a single hike.\n  `;\n\n  return {\n    json: {\n      ...hike,\n      prompt\n    }\n  };\n});\n\nreturn hikes;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1712,
+        336
+      ],
+      "id": "77fcfc97-dee5-420e-93e9-314ffffc0393",
+      "name": "Missing none prompt"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-1.5-pro-latest",
+          "mode": "list",
+          "cachedResultName": "models/gemini-1.5-pro-latest"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=Take the content inside {{ $json.body }}, which is a list of hike assignments.\n\nWrite a professional, friendly email starting with:\n\n“Hi team,\nThank you for your patience. Here is the list of hike matchings we found:”\n\nThen, present each assignment clearly on a separate line and add two more returns.\nUse line breaks (not pipes or bullets).\nInclude the driver name, assigned hike, hike difficulty, group difficulty, and reason in each line.\nMake sure everything is spelled correctly and consistently formatted.\nEnd the email with a polite closing like:\n“Let us know if you have any questions.\nBest regards,\nThe Assignment Team”"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1,
+      "position": [
+        5728,
+        400
+      ],
+      "id": "d798dff8-ffe7-47a5-85e0-47ef9d8e4bde",
+      "name": "email gen",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "Ns0ztVG2nbx9v6Mf",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "=lotke@usc.edu",
+        "subject": "Gorilla Asignments",
+        "message": "={{ $json.content.parts[0].text }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        6112,
+        288
+      ],
+      "id": "e8ca4d7e-eabe-4321-b3a1-b2de4c9c1a97",
+      "name": "Send a message",
+      "webhookId": "f2cb13d2-ce60-4207-99f0-9cf82d96a062",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "zeEKWTpxnfM1x3Ml",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://0293f76322a5.ngrok-free.app/optimize",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "hikes",
+              "value": "={{ $json.hikes }}"
+            },
+            {
+              "name": "requests",
+              "value": "={{ $json.requests }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        5072,
+        240
+      ],
+      "id": "37677df5-dbdc-48ce-afa3-1309668de330",
+      "name": "Sends data to optimizer"
+    },
+    {
+      "parameters": {
+        "jsCode": "const difficultyArray = $input.all().map(item => item.json);\nconst difString = JSON.stringify(difficultyArray, null, 2);\n\nreturn [\n  {\n    json: {\n      allHikes: difString\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3344,
+        -144
+      ],
+      "id": "bcbc9f17-e81a-4b36-9f4a-509e27a43d6d",
+      "name": "Combine_Hikes1"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://a6d39a97cf5d.ngrok-free.app/optimize",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "requests",
+              "value": "={{ $json.requests }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        5200,
+        1152
+      ],
+      "id": "183d63a9-6116-40b5-8e25-c865d7b7f28c",
+      "name": "Sends data to optimizer1"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        5344,
+        1376
+      ],
+      "id": "0f1e0e81-52d7-4b8a-b7ec-4b4cd2e2e987",
+      "name": "Merge1"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "d58ac4d3-b5b1-4591-bab5-a842b8a7aee9",
+              "name": "",
+              "value": "",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        5712,
+        1456
+      ],
+      "id": "e71d4a06-51ff-4663-8f3b-f4ee8fe54eee",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        5536,
+        1248
+      ],
+      "id": "7d56b799-e786-4c07-a81f-ccb2d391699f",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "jsCode": "const requestArray = $input.all().map(item => item.json);\n\nreturn [\n  {\n    json: {\n      requests: requestArray\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1456,
+        1424
+      ],
+      "id": "6dde9baa-ad30-4a70-bdda-9a01e2b7f64a",
+      "name": "Code - req"
+    },
+    {
+      "parameters": {
+        "jsCode": "const hikes = $items(\"Difficulty Estimator\")[0].json.output.Hikes;\nconst requests = $items(\"Code - req\")[0].json.requests;\n\nreturn [\n  {\n    json: {\n      hikes,\n      requests\n    }\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4624,
+        304
+      ],
+      "id": "b17225ab-bd11-4baf-a4ef-7d546a169c83",
+      "name": "Code"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        6320,
+        288
+      ],
+      "id": "a0fe15d3-0449-4627-af63-fe1b0949a024",
+      "name": "No Operation, do nothing1"
+    },
+    {
+      "parameters": {
+        "jsCode": "const hikes = $items(\"Difficulty Estimator\")[0].json.output.Hikes;\nconst requests = $items(\"Code - req\")[0].json.requests;\n\nreturn [\n  {\n    json: {\n      hikes,\n      requests\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4848,
+        432
+      ],
+      "id": "ab239baa-67c1-4561-96bd-3877718b2244",
+      "name": "Code3"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const assignments = $json.assignments;\n\nconst lines = assignments.map(group => {\n  return `\nDriver: ${group.driver_name}\nAssigned Hike: ${group.assigned_hike}\nDifficulty: ${group.hike_difficulty}\nRequested Level: ${group.group_difficulty}\nReason: ${group.reason}\n  `.trim();\n});\n\nconst body = `\nHi Team,\n\nHere are the hike assignments for today:\n\n${lines.join('\\n\\n')}\n\nThank you!\n`.trim();\n\nreturn {\n  json: {\n    to: \"fallback@example.com\",  // Replace with dynamic if available\n    subject: \"Daily Gorilla Trek Assignments\",\n    body: body\n  }\n};\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        5472,
+        176
+      ],
+      "id": "36e07bb3-98a7-4da8-b24b-3ec4413b4c11",
+      "name": "Code1"
+    }
+  ],
+  "pinData": {
+    "Gmail Trigger": [
+      {
+        "json": {
+          "id": "19845ea43df3980d",
+          "threadId": "19845ea43df3980d",
+          "labelIds": [
+            "UNREAD",
+            "CATEGORY_PERSONAL",
+            "INBOX"
+          ],
+          "sizeEstimate": 11408,
+          "headers": {
+            "delivered-to": "Delivered-To: rwandagorillatrekking123@gmail.com",
+            "received": "Received: by mail-pg1-f197.google.com with SMTP id 41be03b00d2f7-b350d850677so2011459a12.2\r\n        for <rwandagorillatrekking123@gmail.com>; Sat, 26 Jul 2025 01:47:16 -0700 (PDT)",
+            "x-google-smtp-source": "X-Google-Smtp-Source: AGHT+IFYjnFGxecH+/4jFikeKFagpt4fPDzPn7+jzGxUoxFdG0J4Z9zdEP6SiZwCnNsfBzImIqW+",
+            "x-received": "X-Received: by 2002:a05:6a20:3d1a:b0:230:f120:f7f3 with SMTP id\r\n adf61e73a8af0-23d6ffd455fmr8558708637.8.1753519634641; Sat, 26 Jul 2025\r\n 01:47:14 -0700 (PDT)",
+            "arc-seal": "ARC-Seal: i=1; a=rsa-sha256; t=1753519637; cv=none;\r\n        d=google.com; s=arc-20240605;\r\n        b=hGnSiY3y3m3wq/Iq0b6vAE5jsXjh4mIic8LQnUNeqNK0tkIuMb2qDHr3ucm5gSXgDH\r\n         n8GcBv9D1wXZLkmgvyJJgrGyMwGicso6FM4dsXuYtdhY5SGU6ewY1+SsR/2gocOI8gya\r\n         ngIJTAR+tAb61+m/2umBFN7lRmfwNqyTnq9ZtZ/bF7El7S4gjPpAAJoWkbLSIpUwURg6\r\n         RfBMaNTX+Fz8DBIijLBqS36hnX6Qm1PrPGykdBfIRvBDk4Rt7XflwMqIXYnEIdTn7T1Q\r\n         84Vy1Mv8nzcVvTMQyIK6OYTXYj/1i24I1iTb1mQyhU8i2YZIYsF6PzTHwxsSU1bR5u3e\r\n         qWiA==",
+            "arc-message-signature": "ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;\r\n        h=content-transfer-encoding:to:subject:message-id:date:from\r\n         :mime-version:dkim-signature;\r\n        bh=X6AlDkUTdOzikL6soDkvYRnV5EJwei2uPBRghitDssI=;\r\n        fh=ln88bLVbnO73GMHmcKFJP7NlpjKjHFwon1gLOyN06rI=;\r\n        b=bqi5A/tW2ij8/58Q2QT/q6R0Ht+lhLRGLypzBQO5TfxfkLSu5nj79xLn5uQts3jsiB\r\n         Gkq6+ewVURajN8b1A6Lp8CrClkCummClSPQg2wCmvc4GBamsQUS+2dgnW6TAcAooxe/R\r\n         nzYHcdSt/XyzCNCPonoZT8m09t5+vKGMbXvByzlI6KlkzYajSYziQvYLF0qfBy0zIeYW\r\n         hCujEY9FbLsrGoflPSD6MpvaRu7aiTjgVKnVjQdwiL+johpbyBo/BkGwjnMr4UMWsM/O\r\n         bIR1IcPtuBBusTWUpNO6PnbWVkJGz70sOEo1wN0nKVSGXazc5QgWTTSVSUfUDW+RokZx\r\n         CHaQ==;\r\n        dara=google.com",
+            "arc-authentication-results": "ARC-Authentication-Results: i=1; mx.google.com;\r\n       dkim=pass header.i=@usc.edu header.s=pps23mar2020 header.b=Ndwea38W;\r\n       spf=pass (google.com: domain of lotke@usc.edu designates 67.231.157.15 as permitted sender) smtp.mailfrom=lotke@usc.edu;\r\n       dmarc=pass (p=NONE sp=NONE dis=NONE) header.from=usc.edu",
+            "return-path": "Return-Path: <lotke@usc.edu>",
+            "received-spf": "Received-SPF: pass (google.com: domain of lotke@usc.edu designates 67.231.157.15 as permitted sender) client-ip=67.231.157.15;",
+            "authentication-results": "Authentication-Results: mx.google.com;\r\n       dkim=pass header.i=@usc.edu header.s=pps23mar2020 header.b=Ndwea38W;\r\n       spf=pass (google.com: domain of lotke@usc.edu designates 67.231.157.15 as permitted sender) smtp.mailfrom=lotke@usc.edu;\r\n       dmarc=pass (p=NONE sp=NONE dis=NONE) header.from=usc.edu",
+            "dkim-signature": "DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=usc.edu; h=\r\n\tcontent-transfer-encoding:content-type:date:from:message-id\r\n\t:mime-version:subject:to; s=pps23mar2020; bh=X6AlDkUTdOzikL6soDk\r\n\tvYRnV5EJwei2uPBRghitDssI=; b=Ndwea38W7OQDc2uh6WFMY3bJwBH9DsvQ9fx\r\n\tZc5M3taqo/NhNzT0CX+7DtS453e074sm24dsLvJ9VO5OjN2d6D/9+SKTtk3MKPOc\r\n\tutaDW5HNuzIkC9iP5aRkrkYRMDoFQw1YXcGLpDZyeMrO7BK+1LVwd2KYG2VwNS2Q\r\n\tAwMrtW5ZLKmhEcqdtD/uS/esUAWhrwNFaNuj4C5S1bisM9JGCeYIoZXf6L32rML6\r\n\t2ZWbLBq/3dAzy/2lgnzj+UmJc9xV3jPU9Ymysqgu0Pd/V13nVIvtr2Ka/qNEicS4\r\n\tiEdy5DaT9ULHvcOeuY/FD7qy37LweJ1VSlIY/Y75rsXC231mgqA==",
+            "x-google-dkim-signature": "X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;\r\n        d=1e100.net; s=20230601; t=1753519635; x=1754124435;\r\n        h=content-transfer-encoding:to:subject:message-id:date:from\r\n         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id\r\n         :reply-to;\r\n        bh=X6AlDkUTdOzikL6soDkvYRnV5EJwei2uPBRghitDssI=;\r\n        b=Zglnxtv+pfx8xRdu4ZPZu2/1FxM017cCJrF4fKGVCiNvgNsY6qHKB0HRaVPwO4myIu\r\n         Nh8DZPkvdjUgNX5vDeETCGV1MrMGteaS1zbraoOiKF9WSzIyd3ca8abBfn/wDaChOo0G\r\n         Ny0JxvCxPnPv4O/xkbjT/ViWSmqkhcx2W/PDFP/PPHdKU24RfPsfG/BuWB1rb0ihkJQo\r\n         yYus7NWWGBPM8jLv28qZdAINIMPGi3pX/9nh95pcRFW4lLR//yxCz3ioF4LgGGyY4GEG\r\n         xd3yKfAFxC/z1eQgRV+1dJXDiwYkEka20lst2H1CjN+8LUojyg3EQx6iWH3m/Qxeavfx\r\n         AY/g==",
+            "x-gm-message-state": "X-Gm-Message-State: AOJu0Yy8l++EVMFKjD6gffFpz8nmLPkPrv9viwQTEMIqkJtNlgYW6si3\r\n\tm4S5vGb+SnGGgzPs+BPqlYDeWhMCIlTps/MifIS7TkXkOFyl9llFZ44S38gKw+7viW+MEXHZ9gd\r\n\tHNUk5/5NQ2VdgpgmWm4CDUg1Tzpt45BtpZ3pm5OgeFHlcOyM7r4ALBgJJ3OO4KGVEkSfQ8Yw3t2\r\n\t4tp5SflS8m/igN2KK9D6FLRah6pWV299XqRquauzOILMnBH/fi0UdON4sHAg==",
+            "x-gm-gg": "X-Gm-Gg: ASbGnct8d3ZbnPcOzax7Dq3ChlUIrCF0kKSM9qkiwq5r8jWmdIqiMkPfHEpvPIgYh8P\r\n\tyUnGAOJWgA0D4W4ve9I6m4icsOZH468ljtraLpwJL7WEhMoR9NfMgb3at3+LP5sCbPnSLuCgYsM\r\n\t88QDpogd/04ecCDgg7XhxTlQ==",
+            "mime-version": "MIME-Version: 1.0",
+            "from": "From: Kyle Lotke <lotke@usc.edu>",
+            "date": "Date: Sat, 26 Jul 2025 02:47:03 -0600",
+            "x-gm-features": "X-Gm-Features: Ac12FXwOFbwERCiRQavFcnMOrwTu1TImmARMjBZdOoKyBLA9_UStlcuoTlWkKtY",
+            "message-id": "Message-ID: <CAMDYUtm7yhZ0b-6KH1vtQf5X09us2gHwjVxh6+VNRn=s27REtQ@mail.gmail.com>",
+            "subject": "Subject: Solve tomorrows hike assignments",
+            "to": "To: rwandagorillatrekking123@gmail.com",
+            "content-type": "Content-Type: text/plain; charset=\"UTF-8\"",
+            "content-transfer-encoding": "Content-Transfer-Encoding: quoted-printable",
+            "x-proofpoint-guid": "X-Proofpoint-GUID: NYL8SbMZ3Mu3wj6na6DFBx3GXaHP3vFD",
+            "x-authority-analysis": "X-Authority-Analysis: v=2.4 cv=XJQwSRhE c=1 sm=1 tr=0 ts=68849614 cx=c_pps a=rz3CxIlbcmazkYymdCej/Q==:117 a=IkcTkHD0fZMA:10 a=Wb1JkmetP80A:10 a=x7bEGLp0ZPQA:10 a=Vg_K9j_4dWm1uKnTKQMA:9 a=QEXdDO2ut3YA:10 a=bFCP_H2QrGi7Okbo017w:22",
+            "x-proofpoint-orig-guid": "X-Proofpoint-ORIG-GUID: NYL8SbMZ3Mu3wj6na6DFBx3GXaHP3vFD",
+            "x-proofpoint-spam-details-enc": "X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwNzI2MDA3NSBTYWx0ZWRfX6NkFj4VkGd2/ WhW88qKiobF/4n3GAfKHDcpWSTd05yRVwGuEB747jYsc+UlEK/Mr392mdtt7XCbmDR5lLLTREMV wOvO/j00Za8C9tLgft0vauGZdHEv55js/GyYd6mXzi3xrOEK7TwQcHo/2M5nFagkKTJIWXGziu3\r\n uLAhamo7j5Q31irGbDATHNJF7j9NhhDzXUEl4NjcDvWFLA5jhUHVTLMm6mGeNwnE1Ol27gbR8W1 uV3DfzVpYPrAPjXwlUMXWohTwB/4+bW2ax7WIO0gpx9wv3dRfguGM0pzJ2gRnCQZewlp3YQ92ds 2pPYQv8yrN26POEXC3/i7J+xPC9jrWrKPBjTeeWuxxivV99wPHfTtBfudweF75Tgux/38PiL7HK\r\n 9oBZOccv3xClpoht3bmbkqGkT2brQXLZqTQs1ywjs3dTxcsuhQPhxytqBqnD4Kom2iWeUJWD",
+            "x-proofpoint-spam-details": "X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 malwarescore=0\r\n mlxscore=0 phishscore=0 suspectscore=0 priorityscore=1501 bulkscore=0\r\n impostorscore=0 adultscore=0 clxscore=1015 mlxlogscore=941\r\n lowpriorityscore=0 classifier=spam authscore=0 authtc=n/a authcc=\r\n route=outbound adjust=0 reason=mlx scancount=1 engine=8.19.0-2505280000\r\n definitions=main-2507260075"
+          },
+          "text": "Hello team,  Please proceed with assigning hiking groups. Below is the\nlatest dump from the trackers, lots of info in here, please filter\nwhat u need. Some typos probably, sorry 😅\n\nMuhuza was seen near the Gahinga loop (I think they meant Muhoza?).\nHike is steep, modr8 diffculty, mostly dry, elevation medium (est.\n2100m). He’s in Rwanda, not under reserch. probably a 4 and half hour\nhike.\n\nHirva currently by the southern moss fields. Wet, low gradient trail,\nvery slippery rocks, be cautious. Country: Rwanda. Being studied\ncurrently by Dr. Kayumba. The hike should be around 7km and take 4\nhours.\n\nKwitonda—aka “The Old Man”—spotted this morning in the tree ridge\nzone. Dry climb, vry steep. Rocky af. Rwanda. Not under any current\nresearch. Hike is around 5km. Elevation close to 2400m.\n\nKwisnaga (pretty sure that’s Kwisanga) tracked in deep forest. Reports\nunclear—possible flooding nearby. Moderate incline, mostly muddy.\nStill in Rwanda. NOT being researched. Hike will be over 6 hours,\nmaybe ~8km.\n\n Amahoro fam on patrol path near Hill 9. Mild slope, dry but scattered\nrocks. Easy trail overall. They're in Uganda today, just crossed over\nfor the day. Active study group. Elevation ~2000m, est. time 2 hrs.\n\nSabyinyo heard grunting near trailhead exit 2. Low elevation\n(1900ish), mostly flat trail, some bamboo brush. Rwanda. Not under\nresearch. Est. 1.5 hr trek, maybe 3.5km.\n\n  Igisha showing high activity on western ridgeline. Very muddy and\nsteep. Elevation ~2800m. Being monitored for aggression patterns by\nteam. Hike is 10-11km, plan for 4+ hrs. Rwanda. Researched.\n\nUmubano chillin by the shallow creek beds. Wet path but steady slope.\nRwanda, elevation ~2150m. Non-research group. Expect 5.5km walk, ~2.5\nhrs.\n\nAgashya got seen higher up the saddle ridge. Final approach is\ntough—scree slope + dense forest. Rwanda. Not in a study. Elevation\n~2500m. Expect 3.5-4 hrs, ~9km.\n\nSusa is doing Susa things—top of the world again. Elevation 3000m+,\nfoggy as hell. Very steep trail. Not researched. You’re lookin at 5 hr\nhike min.\n\n Kigoma foraging near west trails. Rocky trail but not awful. Rwanda.\nNo research. ~2.5 hrs, est. 5km. Elevation ~2200m.\n\nKureba seen playing around bamboo zone B. Pretty wet rn, steep at\ntimes. Rwanda group. Hike is 7.5km, takes 3 hrs on avg. Elevation\n~2550m.\n\nTitus near the big fig tree ridge. Partially sunny, dry trail,\nmoderate incline. Rwanda. Elevation est. 2450m. 6km distance, not\nstudied.\n\nPablo found near stream split between zones 3 & 4. Rocky crossing but\nno major slope. Rwanda. ~5km in. Non-research. Elevation 2150m.\n\nDushishoze def. still on Ugandan side today. Long hike, very foggy.\nTrail is slick and uphil almost whole way. ~2800m elevation. 4 hrs.\nNot in a study.\n\nMusirikare (U) is in the upper highlands sector. Mostly dry but\nexposed. Under research by Dr. Nyirakaragire. Trail is 6km with minor\nscrambles. Elevation ~2300m.\n\nUrwego chillin near old bamboo grove checkpoint. Easy-ish trail, flat\nmost of the way. Rwanda, 2000m elevation. No research. ~2 hrs, maybe\n4km.\n\nNtambara was climbing earlier—steep trail. Rocky and dry, 8km hike or\nso. Rwanda, elevation 2550m. Non-research.\n\n Isimbi located on northeast slope this morning. Moderate trail, very\nwet after rain. Not under study. Elevation ~2400m. ~3 hrs on foot.\n\nSegasira was seen literally next to the vehicle access point. Trail\nflat and dry. Elevation ~1800m. Good for newbies. Rwanda.\n\nMutobo found above the northwest cliffs. Rocky switchbacks. Rwanda,\n2150m elevation. Not studied. ~2.5 hrs in and out.\n\nMuhabura = HARD. Like always. Volcano side. Very steep. 14km hike.\nRwanda. Elevation ~3100m. No current study.  Izuba basking (lol) in\nmeadow sector B. Flat trail, dry. 1.5 hr hike tops. Elevation ~1850m.\nRwanda. No research.\n",
+          "textAsHtml": "<p>Hello team,  Please proceed with assigning hiking groups. Below is the<br/>latest dump from the trackers, lots of info in here, please filter<br/>what u need. Some typos probably, sorry &#x1F605;</p><p>Muhuza was seen near the Gahinga loop (I think they meant Muhoza?).<br/>Hike is steep, modr8 diffculty, mostly dry, elevation medium (est.<br/>2100m). He&rsquo;s in Rwanda, not under reserch. probably a 4 and half hour<br/>hike.</p><p>Hirva currently by the southern moss fields. Wet, low gradient trail,<br/>very slippery rocks, be cautious. Country: Rwanda. Being studied<br/>currently by Dr. Kayumba. The hike should be around 7km and take 4<br/>hours.</p><p>Kwitonda&mdash;aka &ldquo;The Old Man&rdquo;&mdash;spotted this morning in the tree ridge<br/>zone. Dry climb, vry steep. Rocky af. Rwanda. Not under any current<br/>research. Hike is around 5km. Elevation close to 2400m.</p><p>Kwisnaga (pretty sure that&rsquo;s Kwisanga) tracked in deep forest. Reports<br/>unclear&mdash;possible flooding nearby. Moderate incline, mostly muddy.<br/>Still in Rwanda. NOT being researched. Hike will be over 6 hours,<br/>maybe ~8km.</p><p> Amahoro fam on patrol path near Hill 9. Mild slope, dry but scattered<br/>rocks. Easy trail overall. They&apos;re in Uganda today, just crossed over<br/>for the day. Active study group. Elevation ~2000m, est. time 2 hrs.</p><p>Sabyinyo heard grunting near trailhead exit 2. Low elevation<br/>(1900ish), mostly flat trail, some bamboo brush. Rwanda. Not under<br/>research. Est. 1.5 hr trek, maybe 3.5km.</p><p>  Igisha showing high activity on western ridgeline. Very muddy and<br/>steep. Elevation ~2800m. Being monitored for aggression patterns by<br/>team. Hike is 10-11km, plan for 4+ hrs. Rwanda. Researched.</p><p>Umubano chillin by the shallow creek beds. Wet path but steady slope.<br/>Rwanda, elevation ~2150m. Non-research group. Expect 5.5km walk, ~2.5<br/>hrs.</p><p>Agashya got seen higher up the saddle ridge. Final approach is<br/>tough&mdash;scree slope + dense forest. Rwanda. Not in a study. Elevation<br/>~2500m. Expect 3.5-4 hrs, ~9km.</p><p>Susa is doing Susa things&mdash;top of the world again. Elevation 3000m+,<br/>foggy as hell. Very steep trail. Not researched. You&rsquo;re lookin at 5 hr<br/>hike min.</p><p> Kigoma foraging near west trails. Rocky trail but not awful. Rwanda.<br/>No research. ~2.5 hrs, est. 5km. Elevation ~2200m.</p><p>Kureba seen playing around bamboo zone B. Pretty wet rn, steep at<br/>times. Rwanda group. Hike is 7.5km, takes 3 hrs on avg. Elevation<br/>~2550m.</p><p>Titus near the big fig tree ridge. Partially sunny, dry trail,<br/>moderate incline. Rwanda. Elevation est. 2450m. 6km distance, not<br/>studied.</p><p>Pablo found near stream split between zones 3 &amp; 4. Rocky crossing but<br/>no major slope. Rwanda. ~5km in. Non-research. Elevation 2150m.</p><p>Dushishoze def. still on Ugandan side today. Long hike, very foggy.<br/>Trail is slick and uphil almost whole way. ~2800m elevation. 4 hrs.<br/>Not in a study.</p><p>Musirikare (U) is in the upper highlands sector. Mostly dry but<br/>exposed. Under research by Dr. Nyirakaragire. Trail is 6km with minor<br/>scrambles. Elevation ~2300m.</p><p>Urwego chillin near old bamboo grove checkpoint. Easy-ish trail, flat<br/>most of the way. Rwanda, 2000m elevation. No research. ~2 hrs, maybe<br/>4km.</p><p>Ntambara was climbing earlier&mdash;steep trail. Rocky and dry, 8km hike or<br/>so. Rwanda, elevation 2550m. Non-research.</p><p> Isimbi located on northeast slope this morning. Moderate trail, very<br/>wet after rain. Not under study. Elevation ~2400m. ~3 hrs on foot.</p><p>Segasira was seen literally next to the vehicle access point. Trail<br/>flat and dry. Elevation ~1800m. Good for newbies. Rwanda.</p><p>Mutobo found above the northwest cliffs. Rocky switchbacks. Rwanda,<br/>2150m elevation. Not studied. ~2.5 hrs in and out.</p><p>Muhabura = HARD. Like always. Volcano side. Very steep. 14km hike.<br/>Rwanda. Elevation ~3100m. No current study.  Izuba basking (lol) in<br/>meadow sector B. Flat trail, dry. 1.5 hr hike tops. Elevation ~1850m.<br/>Rwanda. No research.</p>",
+          "subject": "Solve tomorrows hike assignments",
+          "date": "2025-07-26T08:47:03.000Z",
+          "to": {
+            "value": [
+              {
+                "address": "rwandagorillatrekking123@gmail.com",
+                "name": ""
+              }
+            ],
+            "html": "<span class=\"mp_address_group\"><a href=\"mailto:rwandagorillatrekking123@gmail.com\" class=\"mp_address_email\">rwandagorillatrekking123@gmail.com</a></span>",
+            "text": "rwandagorillatrekking123@gmail.com"
+          },
+          "from": {
+            "value": [
+              {
+                "address": "lotke@usc.edu",
+                "name": "Kyle Lotke"
+              }
+            ],
+            "html": "<span class=\"mp_address_group\"><span class=\"mp_address_name\">Kyle Lotke</span> &lt;<a href=\"mailto:lotke@usc.edu\" class=\"mp_address_email\">lotke@usc.edu</a>&gt;</span>",
+            "text": "\"Kyle Lotke\" <lotke@usc.edu>"
+          },
+          "messageId": "<CAMDYUtm7yhZ0b-6KH1vtQf5X09us2gHwjVxh6+VNRn=s27REtQ@mail.gmail.com>",
+          "html": false
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Gmail Trigger": {
+      "main": [
+        [
+          {
+            "node": "Raw Email Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Extraction Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Hike Info Parser": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Extraction Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Global Vars": {
+      "main": [
+        [
+          {
+            "node": "Extraction Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If request": {
+      "main": [
+        [
+          {
+            "node": "Global Vars",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Raw Email Data": {
+      "main": [
+        [
+          {
+            "node": "Email Filter",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Pull Live Hike Requests",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Email Filter": {
+      "main": [
+        [
+          {
+            "node": "If request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter Check + Fill Missing": {
+      "main": [
+        [
+          {
+            "node": "Set booleans for missing values",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        []
+      ]
+    },
+    "Extraction Agent": {
+      "main": [
+        [
+          {
+            "node": "Filter Check + Fill Missing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "time/dist estimator",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser1": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "time/dist estimator",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Structured Output Parser1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model3": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Difficulty Estimator",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model4": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Time/Dist Refiner",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "time/dist estimator": {
+      "main": [
+        [
+          {
+            "node": "Combine_Hikes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set booleans for missing values": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "missing time prompt",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "missing dist prompt",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "missing both prompt",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Missing none prompt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "time/dist estimator",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "missing time prompt": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "missing dist prompt": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "missing both prompt": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Time/Dist Refiner": {
+      "main": [
+        [
+          {
+            "node": "Combine_Hikes1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Combine_Hikes": {
+      "main": [
+        [
+          {
+            "node": "Time/Dist Refiner",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser2": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Time/Dist Refiner",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model5": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Structured Output Parser2",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser3": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Difficulty Estimator",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model6": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Structured Output Parser3",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Difficulty Estimator": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pull Live Hike Requests": {
+      "main": [
+        [
+          {
+            "node": "Code - req",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Missing none prompt": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 3
+          }
+        ]
+      ]
+    },
+    "email gen": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sends data to optimizer": {
+      "main": [
+        [
+          {
+            "node": "Code1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Combine_Hikes1": {
+      "main": [
+        [
+          {
+            "node": "Difficulty Estimator",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge1": {
+      "main": [
+        []
+      ]
+    },
+    "Sends data to optimizer1": {
+      "main": [
+        []
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        []
+      ]
+    },
+    "Code - req": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Code3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message": {
+      "main": [
+        [
+          {
+            "node": "No Operation, do nothing1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code3": {
+      "main": [
+        [
+          {
+            "node": "Sends data to optimizer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code1": {
+      "main": [
+        [
+          {
+            "node": "email gen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "8113becd-5d28-49be-afee-083f3564b153",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "29c72d6164e2641ba200872de97d9673d79d5d16929c3118715e1ad1e1ccebb0"
+  },
+  "id": "4qL3eo65yIfJVrzL",
+  "tags": []
+}
